@@ -2,6 +2,21 @@
 
 namespace gf2 {
 
+namespace {
+
+bool fieldsAreCompatible(const Field* lhs, const Field* rhs) {
+    if (lhs == rhs) {
+        return true;
+    }
+    if (!lhs || !rhs) {
+        return false;
+    }
+    return lhs->degree() == rhs->degree() &&
+           lhs->modulus() == rhs->modulus();
+}
+
+} // namespace
+
 Field::Field() : Field(1) {}
 
 Field::Field(size_t degree, InverseMode invMode)
@@ -9,7 +24,7 @@ Field::Field(size_t degree, InverseMode invMode)
 
 Field::Field(size_t degree, uint64_t irreducible_poly, InverseMode invMode)
     : m_degree(degree), m_modulus(irreducible_poly), 
-      m_invMode(invMode), m_tablesBuilt(false), m_primitive(0) {
+      m_primitive(0), m_invMode(invMode), m_tablesBuilt(false) {
     
     if (degree < 1 || degree > 64) {
         throw std::invalid_argument("Degree must be in [1, 64]");
@@ -300,7 +315,8 @@ Field::Element Field::Element::inverse() const {
 }
 
 bool Field::Element::operator==(const Element& other) const {
-    return m_field == other.m_field && m_value == other.m_value;
+    return fieldsAreCompatible(m_field, other.m_field) &&
+           m_value == other.m_value;
 }
 
 bool Field::Element::operator!=(const Element& other) const {
@@ -328,7 +344,7 @@ void Field::Element::validate() const {
 }
 
 void Field::Element::checkSameField(const Element& other) const {
-    if (m_field != other.m_field) {
+    if (!fieldsAreCompatible(m_field, other.m_field)) {
         throw std::invalid_argument("Elements from different fields");
     }
 }

@@ -474,7 +474,7 @@ void testMatrixInverse() {
     // Тест 1: Обратная единичной матрицы
     std::cout << "✓ Обратная единичной матрицы...\n";
     Matrix I = Matrix::identity(3, field);
-    auto inv_I = I.inverse(true);
+    auto inv_I = I.inverse(false);
     // assert(inv_I.has_value());
     // assert(*inv_I == I);
     
